@@ -23,7 +23,7 @@ swayidle timeout 300 '~/tvsh/ctl.sh start' resume '~/tvsh/ctl.sh stop'
 ## Dependencies
 
 - playing: mpv, socat, curl, jq, ddcutil (for brightness control)
-- scraping/indexing: mpv, ffprobe
+- scraping/indexing: mpv, ffprobe (from ffmpeg)
 
 ## Configuration
 
