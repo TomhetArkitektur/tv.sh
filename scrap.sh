@@ -4,6 +4,8 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/lib/config.sh"
 source "$DIR/lib/utils.sh"
 
+load_user_config
+
 cd "$CLIP_DIR"
 
 while true; do
