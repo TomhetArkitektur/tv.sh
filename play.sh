@@ -36,7 +36,9 @@ play() {
   fi
 }
 
+
 load_user_config
+on_event start
 
 if [ ! -d "$CACHE_DIR" ]; then
   mkdir -p "$CACHE_DIR"
@@ -46,6 +48,8 @@ fi
 
 old_fname=""
 while true; do
+  on_event play
+
   read -r url fdura < <(get_random "$MIN_DURA")
   fname=$(get_file "$url")
 
