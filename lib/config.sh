@@ -10,6 +10,12 @@ MPV_OPTS="--video-zoom=0 --video-unscaled=no --panscan=1.0 --gpu-context=wayland
 
 # URI of domain with clips, assuming you have 'random' and 'duration' get parameters in it (see examples)
 TVSH_URI="https://domain.com/tvsh/"
+# exit player if command returns non-zero exit code, useful to check if display is active (empty to disable)
+EXIT_CMD=""
+# execute after start
+ON_START_CMD=""
+# execute after stop
+ON_STOP_CMD=""
 
 ### scrapper settings
 WEBSITE=""
