@@ -21,5 +21,14 @@ case "$1" in
     pkill -f play.sh
     pkill -f mpv
     sudo ddcutil setvcp 10 "$(cat $TMP_DIR/brightness)"
+    $ON_STOP_CMD >/dev/null
+    ;;
+  status)
+    state=`pgrep -f "tv.sh/play.sh"`
+    if [ $? == 1 ]; then
+      echo "stopped"
+    else
+      echo "running"
+    fi
     ;;
 esac
