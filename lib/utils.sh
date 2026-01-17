@@ -27,3 +27,18 @@ load_user_config() {
     source "$fname"
   fi
 }
+
+on_event() {
+  step="$1"
+  case "$step" in
+    start)
+      $ON_START_CMD >/dev/null
+      ;;
+    stop)
+      $ON_STOP_CMD >/dev/null
+      ;;
+    play)
+      $EXIT_CMD >/dev/null || { echo "'${EXIT_CMD}' returns non-zero exit code, exiting"; exit 1; }
+      ;;
+  esac
+}
