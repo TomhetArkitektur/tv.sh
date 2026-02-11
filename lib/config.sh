@@ -11,7 +11,7 @@ MPV_OPTS="--video-zoom=0 --video-unscaled=no --panscan=1.0 --fs --input-vo-keybo
 MPV_OPTS_TVSH=""
 # mpv settings for immich source (example: '--vo=wlshm' for wayland on raspberry pi)
 MPV_OPTS_IMMICH=""
-# Source of clips (tvsh or immich)
+# Source of clips (tvsh or immich), you can dinamically switch sources via 'ctl.sh source [SOURCE]'
 SOURCE="tvsh"
 
 ### Source settings
