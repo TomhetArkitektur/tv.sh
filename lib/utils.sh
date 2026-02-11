@@ -26,6 +26,45 @@ load_user_config() {
   if [ -f "$fname" ]; then
     source "$fname"
   fi
+
+  if [ "$SOURCE" == "immich" ]; then
+    MPV_OPTS="$MPV_OPTS $MPV_OPTS_IMMICH"
+  elif [ "$SOURCE" == "tvsh" ]; then
+    MPV_OPTS="$MPV_OPTS $MPV_OPTS_TVSH"
+  fi
+}
+
+prepare() {
+  if [ ! -d "$CACHE_DIR" ]; then
+    mkdir -p "$CACHE_DIR"
+  else
+    find "$CACHE_DIR" -mindepth 1 -delete
+  fi
+
+  if [ "$SOURCE" == "immich" ]; then
+    rm -f "$TMP_DIR/immich_assets"
+
+    uri="$IMMICH_URL/albums"
+    if [ "$IMMICH_ALBUMS_TYPE" == "shared" ]; then
+      uri="$uri?shared=true"
+    fi
+
+    if [ "$IMMICH_ALBUMS_TYPE" == "manual" ]; then
+      albums=$(printf "%s\n" "${IMMICH_ALBUMS[@]}")
+    else
+      albums=$(curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$uri" | jq '.[]["id"]' | tr -d '"')
+    fi
+    echo "${albums[@]}"
+
+    while read -r album; do
+      curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r '.assets[] | select(.type != "VIDEO") | .id' >> "$TMP_DIR/immich_assets"
+    done <<< "$albums"
+  fi
+}
+
+terminate() {
+  pkill -f mpv
+  pkill -f play.sh
 }
 
 on_event() {
@@ -38,7 +77,7 @@ on_event() {
       $ON_STOP_CMD >/dev/null
       ;;
     play)
-      $EXIT_CMD >/dev/null || { echo "'${EXIT_CMD}' returns non-zero exit code, exiting"; exit 1; }
+      $EXIT_CMD >/dev/null || { echo "'${EXIT_CMD}' returns non-zero exit code, exiting"; terminate; exit 1; }
       ;;
   esac
 }

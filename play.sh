@@ -4,26 +4,62 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/lib/config.sh"
 source "$DIR/lib/utils.sh"
 
-get_random() {
+get_random_tvsh() {
   dura="$1"
 
-  if [ "$dura" == "" ]; then
-    json=$(curl -s "$TVSH_URI/?random" | head -1)
-  else
-    json=$(curl -s "$TVSH_URI/?random&duration=$dura" | head -1)
+  uri="$TVSH_URI/?random"
+  if [ "$dura" != "" ]; then
+    uri="$uri&duration=$dura"
   fi
+  json=$(curl -s "$uri" | head -1)
 
   url=$(echo "$json" | jq -r '.url')
   fdura=$(echo "$json" | jq -r '.duration')
   echo "$url" "$fdura"
 }
 
-get_file() {
+get_random_immich() {
+  rand_asset=$(shuf -n 1 "$TMP_DIR/immich_assets")
+  
+  echo "$IMMICH_URL/assets/$rand_asset/original" 0
+}
+
+get_random() {
+  dura="$1"
+
+  if [ "$SOURCE" == "tvsh" ]; then
+    read -r url fdura < <(get_random_tvsh "$dura")
+  elif [ "$SOURCE" == "immich" ]; then
+    read -r url fdura < <(get_random_immich)
+  fi
+  echo "$url" "$fdura"
+}
+
+get_file_tvsh() {
   url="$1"
 
   fname=$(basename "$url")
   curl -s -o "$CACHE_DIR/$fname" "$url"
   echo "$CACHE_DIR/$fname"
+}
+
+get_file_immich() {
+  url="$1"
+
+  fname=$(basename $(dirname "$url"))
+  curl -s -o "$CACHE_DIR/$fname" -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$url"
+  echo "$CACHE_DIR/$fname"
+}
+
+get_file() {
+  url="$1"
+
+  if [ "$SOURCE" == "tvsh" ]; then
+    fname=$(get_file_tvsh "$url")
+  elif [ "$SOURCE" == "immich" ]; then
+    fname=$(get_file_immich "$url")
+  fi
+  echo "$fname"
 }
 
 play() {
@@ -39,12 +75,7 @@ play() {
 
 load_user_config
 on_event start
-
-if [ ! -d "$CACHE_DIR" ]; then
-  mkdir -p "$CACHE_DIR"
-else
-  find "$CACHE_DIR" -mindepth 1 -delete
-fi
+prepare
 
 old_fname=""
 while true; do

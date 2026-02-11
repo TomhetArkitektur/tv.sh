@@ -27,8 +27,18 @@ case "$1" in
     state=`pgrep -f "tv.sh/play.sh"`
     if [ $? == 1 ]; then
       echo "stopped"
+      exit 1
     else
       echo "running"
+      exit 0
+    fi
+    ;;
+  source)
+    if [[ "$2" == "tvsh" || "$2" == "immich" ]]; then
+      echo "set source: $2"
+      sed -i "s|SOURCE=.*|SOURCE=\"$2\"|g" "$HOME/.config/tvsh/config.sh"
+    else
+      echo "unknown source: $2"
     fi
     ;;
 esac
