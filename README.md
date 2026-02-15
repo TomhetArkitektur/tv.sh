@@ -28,7 +28,7 @@ Screensaver-like functionality for smart home displays (with [immich](https://gi
 ~/tv.sh/ctl.sh start 
 ~/tv.sh/ctl.sh stop
 ~/tv.sh/ctl.sh status
-~/tv.sh/ctl.sh source [tvsh|immich] # set source
+~/tv.sh/ctl.sh source [http|immich] # set source
 ```
   
 - integrate with [swayidle](https://github.com/swaywm/swayidle) for automated screensaver behavior:
