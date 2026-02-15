@@ -9,6 +9,8 @@ BR_GET_CMD="sudo ddcutil -t --brief getvcp 10 | awk '{print \$4}'"
 MIN_DURA=""
 # wait interval between clips
 WAIT_INT=7
+# files to keep in cache
+CACHE_SIZE=10
 # show OSD with custom text from API or location data from immich
 SHOW_OSD="true"
 # general mpv settings for all sources

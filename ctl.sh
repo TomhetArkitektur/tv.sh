@@ -5,7 +5,6 @@ source "$DIR/lib/config.sh"
 source "$DIR/lib/utils.sh"
 
 load_user_config
-mkdirs
 
 case "$1" in
   start)

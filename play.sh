@@ -38,18 +38,18 @@ get_random_immich() {
   fi
   location="$city $state"
 
-  echo "$IMMICH_URL/assets/$asset/original" 0 "$location"
+  echo "$asset" "$IMMICH_URL/assets/$asset/original" 0 "$location"
 }
 
 get_random() {
   dura="$1"
 
   if [ "$SOURCE" == "tvsh" ]; then
-    read -r url fdura osd < <(get_random_tvsh "$dura")
+    read -r name url fdura osd < <(get_random_tvsh "$dura")
   elif [ "$SOURCE" == "immich" ]; then
-    read -r url fdura osd < <(get_random_immich)
+    read -r name url fdura osd < <(get_random_immich)
   fi
-  echo "$url" "$fdura" "$osd"
+  echo "$name" "$url" "$fdura" "$osd"
 }
 
 get_file_tvsh() {
@@ -100,12 +100,15 @@ load_user_config
 mkdirs
 prepare
 
-old_fname=""
 while true; do
   on_event play
 
-  read -r url fdura osd < <(get_random "$MIN_DURA")
-  fname=$(get_file "$url")
+  read -r name url fdura osd < <(get_random "$MIN_DURA")
+  if [ -f "$CACHE_DIR/$name" ]; then
+    fname="$CACHE_DIR/$name"
+  else
+    fname=$(get_file "$url")
+  fi
 
   echo "playing $url ($fname) ($fdura sec)"
   play "$fname"
@@ -117,8 +120,5 @@ while true; do
     sleep "$WAIT_INT"
   fi
 
-  if [ "$old_fname" != "" ]; then
-    rm -f "$old_fname"
-  fi
-  old_fname="$fname"
+  clean_cache "$CACHE_SIZE"
 done

@@ -44,8 +44,6 @@ mkdirs() {
 
   if [ ! -d "$CACHE_DIR" ]; then
     mkdir -p "$CACHE_DIR"
-  else
-    find "$CACHE_DIR" -mindepth 1 -delete
   fi
 }
 
@@ -87,6 +85,15 @@ set_brightness() {
 
     $BR_SET_CMD $level >/dev/null
   fi
+}
+
+clean_cache() {
+  cutoff="$1"
+
+  cd "$CACHE_DIR"
+  ls -1tr | head -n -"$cutoff" | while read -r file; do
+    rm -f "$file"
+  done
 }
 
 check_status() {
