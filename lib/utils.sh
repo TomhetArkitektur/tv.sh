@@ -29,10 +29,10 @@ load_user_config() {
   [ -f "$tvsh_user_conf" ] && source "$tvsh_user_conf"
   [ -f "$mpv_user_conf" ] && MPV_CONF="$mpv_user_conf"
 
-  if [ "$SOURCE" == "immich" ]; then
+  if [ "$SOURCE" == "http" ]; then
+    MPV_OPTS="$MPV_OPTS $MPV_OPTS_HTTP"
+  elif [ "$SOURCE" == "immich" ]; then
     MPV_OPTS="$MPV_OPTS $MPV_OPTS_IMMICH"
-  elif [ "$SOURCE" == "tvsh" ]; then
-    MPV_OPTS="$MPV_OPTS $MPV_OPTS_TVSH"
   fi
   set_osd
 }

@@ -1,4 +1,4 @@
-get_file_tvsh() {
+get_file_http() {
   url="$1"
 
   fname=$(basename "$url")
@@ -14,7 +14,7 @@ get_file_immich() {
   echo "$CACHE_DIR/$fname"
 }
 
-get_random_tvsh() {
+get_random_http() {
   dura="$1"
 
   uri="$TVSH_URI/?random"

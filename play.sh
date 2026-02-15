@@ -15,8 +15,8 @@ show_osd() {
 get_random() {
   dura="$1"
 
-  if [ "$SOURCE" == "tvsh" ]; then
-    read -r name url fdura osd < <(get_random_tvsh "$dura")
+  if [ "$SOURCE" == "http" ]; then
+    read -r name url fdura osd < <(get_random_http "$dura")
   elif [ "$SOURCE" == "immich" ]; then
     read -r name url fdura osd < <(get_random_immich)
   fi
@@ -26,8 +26,8 @@ get_random() {
 get_file() {
   url="$1"
 
-  if [ "$SOURCE" == "tvsh" ]; then
-    fname=$(get_file_tvsh "$url")
+  if [ "$SOURCE" == "http" ]; then
+    fname=$(get_file_http "$url")
   elif [ "$SOURCE" == "immich" ]; then
     fname=$(get_file_immich "$url")
   fi

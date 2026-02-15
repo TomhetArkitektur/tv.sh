@@ -36,7 +36,7 @@ case "$1" in
     fi
     ;;
   source)
-    if [[ "$2" == "tvsh" || "$2" == "immich" ]]; then
+    if [[ "$2" == "http" || "$2" == "immich" ]]; then
       echo "set source: $2"
       sed -i "s|SOURCE=.*|SOURCE=\"$2\"|g" "$HOME/.config/tvsh/config.sh"
     else

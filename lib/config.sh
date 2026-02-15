@@ -11,20 +11,20 @@ MIN_DURA=""
 WAIT_INT=7
 # files to keep in cache
 CACHE_SIZE=10
-# show OSD with custom text from API or location data from immich
+# show OSD with custom text from source (see lib/sources.sh)
 SHOW_OSD="true"
 # general mpv settings for all sources
 MPV_OPTS="--video-zoom=0 --video-unscaled=no --panscan=1.0 --fs --input-vo-keyboard=no --stop-screensaver=no --no-window-dragging --no-input-cursor --loop=inf --osc=no"
-# mpv settings for tvsh source
-MPV_OPTS_TVSH=""
+# mpv settings for http source
+MPV_OPTS_HTTP=""
 # mpv settings for immich source (example: '--vo=wlshm' for wayland on raspberry pi)
 MPV_OPTS_IMMICH=""
-# Source of clips (tvsh or immich), you can dinamically switch sources via 'ctl.sh source [SOURCE]'
-SOURCE="tvsh"
+# Source of clips, you can dinamically switch sources via 'ctl.sh source [SOURCE]'
+SOURCE="http"
 
 ### Source settings
 # URI of domain with clips, assuming you have 'random' and 'duration' get parameters in it (see examples)
-TVSH_URI="https://domain.com/tvsh/"
+HTTP_URI="https://domain.com/tvsh/"
 # immich API URL
 IMMICH_URL="https://immich.domain.com/api"
 # immich API key
