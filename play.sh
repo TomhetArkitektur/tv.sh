@@ -97,7 +97,7 @@ play() {
 
 
 load_user_config
-on_event start
+mkdirs
 prepare
 
 old_fname=""
@@ -118,7 +118,7 @@ while true; do
   fi
 
   if [ "$old_fname" != "" ]; then
-    rm "$old_fname"
+    rm -f "$old_fname"
   fi
   old_fname="$fname"
 done

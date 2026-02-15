@@ -1,6 +1,10 @@
 ### Player settings
 # set brightness on start (empty to disable)
-SET_BR="25"
+SET_BR=""
+# set brightness command
+BR_SET_CMD="sudo ddcutil setvcp 10"
+# get brightness command
+BR_GET_CMD="sudo ddcutil -t --brief getvcp 10 | awk '{print \$4}'"
 # minimum duration of one clip (empty to disable)
 MIN_DURA=""
 # wait interval between clips
@@ -41,6 +45,8 @@ ON_STOP_CMD=""
 TMP_DIR="/tmp/tvsh"
 # clip cache directory
 CACHE_DIR="$TMP_DIR/cache"
+# tv.sh pid file
+PID="$TMP_DIR/tvsh.pid"
 # mpv pid file
 MPV_PID="$TMP_DIR/mpv.pid"
 # mpv socket file

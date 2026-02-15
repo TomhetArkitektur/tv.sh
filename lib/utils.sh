@@ -37,13 +37,19 @@ load_user_config() {
   set_osd
 }
 
-prepare() {
+mkdirs() {
+  if [ ! -d "$TMP_DIR" ]; then
+    mkdir -p "$TMP_DIR"
+  fi
+
   if [ ! -d "$CACHE_DIR" ]; then
     mkdir -p "$CACHE_DIR"
   else
     find "$CACHE_DIR" -mindepth 1 -delete
   fi
+}
 
+prepare() {
   if [ "$SOURCE" == "immich" ]; then
     rm -f "$TMP_DIR/immich_assets"
 
@@ -68,9 +74,35 @@ set_osd() {
   OSD_TIME=$(($WAIT_INT * 1000))
 }
 
+set_brightness() {
+  level="$1"
+
+  if [ "$SET_BR" != "" ]; then
+    if [ "$level" == "restore" ]; then
+      level="$(cat $TMP_DIR/brightness)"
+    else
+      cur_br=$(eval "$BR_GET_CMD")
+      echo "$cur_br" > "$TMP_DIR/brightness"
+    fi
+
+    $BR_SET_CMD $level >/dev/null
+  fi
+}
+
+check_status() {
+  if [ -f "$PID" ] && [ -f "/proc/$(cat $PID)/status" ]; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
 terminate() {
-  pkill -f mpv
-  pkill -f play.sh
+  [ -S "$MPV_SOCK" ] && echo '{"command": ["quit"]}' | socat - "$MPV_SOCK" >/dev/null
+  if [ -f "$PID" ]; then
+    pid=$(cat "$PID")
+    kill "$pid"
+  fi
 }
 
 on_event() {
