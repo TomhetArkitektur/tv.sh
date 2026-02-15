@@ -5,6 +5,8 @@ SET_BR="25"
 MIN_DURA=""
 # wait interval between clips
 WAIT_INT=7
+# show OSD with custom text from API or location data from immich
+SHOW_OSD="true"
 # general mpv settings for all sources
 MPV_OPTS="--video-zoom=0 --video-unscaled=no --panscan=1.0 --fs --input-vo-keyboard=no --stop-screensaver=no --no-window-dragging --no-input-cursor --loop=inf --osc=no"
 # mpv settings for tvsh source

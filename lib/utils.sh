@@ -22,16 +22,19 @@ index_clip() {
 }
 
 load_user_config() {
-  fname="$HOME/.config/tvsh/config.sh"
-  if [ -f "$fname" ]; then
-    source "$fname"
-  fi
+  tvsh_user_conf="$HOME/.config/tvsh/config.sh"
+  mpv_user_conf="$HOME/.config/tvsh/mpv.conf"
+  MPV_CONF="$DIR/conf/mpv.conf"
+
+  [ -f "$tvsh_user_conf" ] && source "$tvsh_user_conf"
+  [ -f "$mpv_user_conf" ] && MPV_CONF="$mpv_user_conf"
 
   if [ "$SOURCE" == "immich" ]; then
     MPV_OPTS="$MPV_OPTS $MPV_OPTS_IMMICH"
   elif [ "$SOURCE" == "tvsh" ]; then
     MPV_OPTS="$MPV_OPTS $MPV_OPTS_TVSH"
   fi
+  set_osd
 }
 
 prepare() {
@@ -54,12 +57,15 @@ prepare() {
     else
       albums=$(curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$uri" | jq '.[]["id"]' | tr -d '"')
     fi
-    echo "${albums[@]}"
 
     while read -r album; do
-      curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r '.assets[] | select(.type != "VIDEO") | .id' >> "$TMP_DIR/immich_assets"
+      curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r '.assets[] | select(.type != "VIDEO") | "\(.id);\(.exifInfo.city);\(.exifInfo.state);\(.exifInfo.country)"' >> "$TMP_DIR/immich_assets"
     done <<< "$albums"
   fi
+}
+
+set_osd() {
+  OSD_TIME=$(($WAIT_INT * 1000))
 }
 
 terminate() {
