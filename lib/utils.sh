@@ -112,6 +112,17 @@ terminate() {
   fi
 }
 
+reload() {
+  rm -f "$TMP_DIR/reload"
+  load_user_config
+  [ -S "$MPV_SOCK" ] && echo '{"command": ["quit"]}' | socat - "$MPV_SOCK" >/dev/null
+
+  for i in {1..100}; do
+    [ ! -f "/proc/$(cat $MPV_PID)/status" ] && break
+    sleep 0.05
+  done
+}
+
 on_event() {
   step="$1"
   case "$step" in

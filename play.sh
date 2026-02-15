@@ -36,6 +36,7 @@ get_file() {
 
 play() {
   fname="$1"
+
   if [ -f "$MPV_PID" ] && [ -f "/proc/$(cat $MPV_PID)/status" ]; then
     echo '{ "command": ["loadfile", "'"$fname"'", "replace"] }' | socat - "$MPV_SOCK" >/dev/null
   else
@@ -56,7 +57,7 @@ mkdirs
 prepare
 
 while true; do
-  on_event play
+  [ -f "$TMP_DIR/reload" ] && reload
 
   read -r name url fdura osd < <(get_random "$MIN_DURA")
   if [ -f "$CACHE_DIR/$name" ]; then
@@ -65,6 +66,7 @@ while true; do
     fname=$(get_file "$url")
   fi
 
+  on_event play
   echo "playing $url ($fname) ($fdura sec)"
   play "$fname"
   show_osd "$osd"

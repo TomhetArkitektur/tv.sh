@@ -39,6 +39,7 @@ case "$1" in
     if [[ "$2" == "http" || "$2" == "immich" ]]; then
       echo "set source: $2"
       sed -i "s|SOURCE=.*|SOURCE=\"$2\"|g" "$HOME/.config/tvsh/config.sh"
+      touch "$TMP_DIR/reload"
     else
       echo "unknown source: $2"
     fi
