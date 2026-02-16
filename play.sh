@@ -12,28 +12,6 @@ show_osd() {
   fi
 }
 
-get_random() {
-  dura="$1"
-
-  if [ "$SOURCE" == "http" ]; then
-    read -r name url fdura osd < <(get_random_http "$dura")
-  elif [ "$SOURCE" == "immich" ]; then
-    read -r name url fdura osd < <(get_random_immich)
-  fi
-  echo "$name" "$url" "$fdura" "$osd"
-}
-
-get_file() {
-  url="$1"
-
-  if [ "$SOURCE" == "http" ]; then
-    fname=$(get_file_http "$url")
-  elif [ "$SOURCE" == "immich" ]; then
-    fname=$(get_file_immich "$url")
-  fi
-  echo "$fname"
-}
-
 play() {
   fname="$1"
 
@@ -59,7 +37,7 @@ prepare_source
 while true; do
   [ -f "$TMP_DIR/reload" ] && reload
 
-  read -r name url fdura osd < <(get_random "$MIN_DURA")
+  read -r name url fdura osd < <(get_random "$MIN_DURA" "$MAX_DURA")
   if [ -f "$CACHE_DIR/$name" ]; then
     fname="$CACHE_DIR/$name"
   else
