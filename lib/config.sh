@@ -6,7 +6,7 @@ BR_SET_CMD="sudo ddcutil setvcp 10"
 # get brightness command
 BR_GET_CMD="sudo ddcutil -t --brief getvcp 10 | awk '{print \$4}'"
 # minimum duration of one clip (empty to disable)
-MIN_DURA=""
+MIN_DURA=0
 # maximum duration (empty to disable)
 MAX_DURA=20
 # wait interval between clips
