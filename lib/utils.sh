@@ -58,31 +58,6 @@ mkdirs() {
   fi
 }
 
-prepare() {
-  if [ "$SOURCE" == "immich" ]; then
-    rm -f "$TMP_DIR/immich_assets"
-
-    uri="$IMMICH_URL/albums"
-    if [ "$IMMICH_ALBUMS_TYPE" == "shared" ]; then
-      uri="$uri?shared=true"
-    fi
-
-    if [ "$IMMICH_ALBUMS_TYPE" == "manual" ]; then
-      albums=$(printf "%s\n" "${IMMICH_ALBUMS[@]}")
-    else
-      albums=$(curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$uri" | jq '.[]["id"]' | tr -d '"')
-    fi
-
-    while read -r album; do
-      curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r --arg max "$MAX_DURA" '.assets[] |
-        (.duration | split(":") | (.[0]|tonumber)*3600 + (.[1]|tonumber)*60 + (.[2]|tonumber) | floor) as $dura |
-        select(
-          .type == "IMAGE" or (.type == "VIDEO" and $dura <= ($max|tonumber))
-        ) | "\(.id);\(.exifInfo.city);\(.exifInfo.state);\(.exifInfo.country);\($dura)"' >> "$TMP_DIR/immich_assets"
-    done <<< "$albums"
-  fi
-}
-
 set_osd() {
   OSD_TIME=$(($WAIT_INT * 1000))
 }

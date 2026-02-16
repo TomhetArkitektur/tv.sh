@@ -41,7 +41,7 @@ play() {
     echo '{ "command": ["loadfile", "'"$fname"'", "replace"] }' | socat - "$MPV_SOCK" >/dev/null
   else
     rm -f "$MPV_SOCK"
-    mpv $MPV_OPTS --include="$MPV_CONF" --input-ipc-server="$MPV_SOCK" "$fname" >/dev/null &
+    mpv $MPV_OPTS --input-ipc-server="$MPV_SOCK" "$fname" >/dev/null &
     echo $! > "$MPV_PID"
 
     for i in {1..100}; do
@@ -54,7 +54,7 @@ play() {
 
 load_user_config
 mkdirs
-prepare
+prepare_source
 
 while true; do
   [ -f "$TMP_DIR/reload" ] && reload
