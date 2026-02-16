@@ -1,3 +1,5 @@
+# shellcheck shell=bash disable=SC2034
+
 ### Player settings
 # set brightness on start (empty to disable)
 SET_BR=""

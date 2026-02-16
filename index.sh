@@ -6,7 +6,11 @@ source "$DIR/lib/utils.sh"
 
 load_user_config
 
-for file in `ls "$CLIP_DIR"`; do
-  echo "process $file"
-  index_clip "$CLIP_DIR/$file"
+for file in "$CLIP_DIR"/*; do
+  [ -e "$file" ] || continue
+    
+  filename=$(basename "$file")
+    
+  echo "process $filename"
+  index_clip "$file"
 done

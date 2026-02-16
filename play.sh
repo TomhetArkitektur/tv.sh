@@ -15,14 +15,15 @@ show_osd() {
 play() {
   fname="$1"
 
-  if [ -f "$MPV_PID" ] && [ -f "/proc/$(cat $MPV_PID)/status" ]; then
+  if [ -f "$MPV_PID" ] && [ -f "/proc/$(cat "$MPV_PID")/status" ]; then
     echo '{ "command": ["loadfile", "'"$fname"'", "replace"] }' | socat - "$MPV_SOCK" >/dev/null
   else
     rm -f "$MPV_SOCK"
+    # shellcheck disable=SC2086
     mpv $MPV_OPTS --input-ipc-server="$MPV_SOCK" "$fname" >/dev/null &
     echo $! > "$MPV_PID"
 
-    for i in {1..100}; do
+    for _ in {1..100}; do
       [ -S "$MPV_SOCK" ] && break
       sleep 0.05
     done

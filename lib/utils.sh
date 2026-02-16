@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 get_clip_size() {
   fname="$1"
   size=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$fname" 2>/dev/null | cut -d. -f1)
@@ -26,6 +28,7 @@ load_user_config() {
   mpv_user_conf="$HOME/.config/tvsh/mpv.conf"
   MPV_CONF="$DIR/conf/mpv.conf"
 
+  # shellcheck disable=SC1090
   [ -f "$tvsh_user_conf" ] && source "$tvsh_user_conf"
   [ -f "$mpv_user_conf" ] && MPV_CONF="$mpv_user_conf"
 
@@ -45,7 +48,7 @@ list_scripts () {
 
   list=$(printf ":%s" "$scripts_dir")
   list=${list:1}
-  echo $list
+  echo "$list"
 }
 
 mkdirs() {
@@ -59,7 +62,8 @@ mkdirs() {
 }
 
 set_osd() {
-  OSD_TIME=$(($WAIT_INT * 1000))
+  # shellcheck disable=SC2034
+  OSD_TIME=$((WAIT_INT * 1000))
 }
 
 set_brightness() {
@@ -67,27 +71,28 @@ set_brightness() {
 
   if [ "$SET_BR" != "" ]; then
     if [ "$level" == "restore" ]; then
-      level="$(cat $TMP_DIR/brightness)"
+      level=$(cat "$TMP_DIR/brightness")
     else
       cur_br=$(eval "$BR_GET_CMD")
       echo "$cur_br" > "$TMP_DIR/brightness"
     fi
 
-    $BR_SET_CMD $level >/dev/null
+    $BR_SET_CMD "$level" >/dev/null
   fi
 }
 
 clean_cache() {
   cutoff="$1"
 
-  cd "$CACHE_DIR"
-  ls -1tr | head -n -"$cutoff" | while read -r file; do
-    rm -f "$file"
+  cd "$CACHE_DIR" || { echo "clean cache failed"; exit 1; }
+  # shellcheck disable=SC2012
+  ls -1tr | head -n -"$cutoff" | while IFS= read -r file; do
+    [ -e "$file" ] && rm -f "$file"
   done
 }
 
 check_status() {
-  if [ -f "$PID" ] && [ -f "/proc/$(cat $PID)/status" ]; then
+  if [ -f "$PID" ] && [ -f "/proc/$(cat "$PID")/status" ]; then
     echo 1
   else
     echo 0
@@ -107,8 +112,8 @@ reload() {
   load_user_config
   [ -S "$MPV_SOCK" ] && echo '{"command": ["quit"]}' | socat - "$MPV_SOCK" >/dev/null
 
-  for i in {1..100}; do
-    [ ! -f "/proc/$(cat $MPV_PID)/status" ] && break
+  for _ in {1..100}; do
+    [ ! -f "/proc/$(cat "$MPV_PID")/status" ] && break
     sleep 0.05
   done
 }

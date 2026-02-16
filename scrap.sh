@@ -6,7 +6,7 @@ source "$DIR/lib/utils.sh"
 
 load_user_config
 
-cd "$CLIP_DIR"
+cd "$CLIP_DIR" || { echo "could not find $CLIP_DIR"; exit 1; }
 
 while true; do
   url=$(curl -s "$WEBSITE" | grep -oE 'https://[^"]*\.(gif|mp4|webm)' | head -1)

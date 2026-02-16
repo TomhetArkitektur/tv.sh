@@ -1,16 +1,18 @@
+# shellcheck shell=bash
+
+# prepare default source
 prepare_source() {
   if [ "$SOURCE" == "immich" ]; then
     prepare_source_immich
   fi
 }
 
+# download albums from immich
 prepare_source_immich() {
   rm -f "$TMP_DIR/immich_assets"
 
   uri="$IMMICH_URL/albums"
-  if [ "$IMMICH_ALBUMS_TYPE" == "shared" ]; then
-    uri="$uri?shared=true"
-  fi
+  [ "$IMMICH_ALBUMS_TYPE" == "shared" ] && uri="$uri?shared=true" # shared albums
 
   if [ "$IMMICH_ALBUMS_TYPE" == "manual" ]; then
     albums=$(printf "%s\n" "${IMMICH_ALBUMS[@]}")
@@ -18,7 +20,9 @@ prepare_source_immich() {
     albums=$(curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$uri" | jq '.[]["id"]' | tr -d '"')
   fi
 
+  # process albums
   while read -r album; do
+    # shellcheck disable=SC2153
     curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r --arg max "$MAX_DURA" --arg min "$MIN_DURA" '.assets[] |
       (.duration | split(":") | (.[0]|tonumber)*3600 + (.[1]|tonumber)*60 + (.[2]|tonumber) | floor) as $dura |
       select(
@@ -31,9 +35,11 @@ prepare_source_immich() {
   done <<< "$albums"
 }
 
+# get random file info from source
 get_random() {
-  min_dura="$1"
-  max_dura="$2"
+  local min_dura="$1"
+  local max_dura="$2"
+  local name url fdura osd
 
   if [ "$SOURCE" == "http" ]; then
     read -r name url fdura osd < <(get_random_http "$min_dura" "$max_dura")
@@ -43,6 +49,7 @@ get_random() {
   echo "$name" "$url" "$fdura" "$osd"
 }
 
+# get file via url
 get_file() {
   url="$1"
 
@@ -54,6 +61,7 @@ get_file() {
   echo "$fname"
 }
 
+# get file from http source
 get_file_http() {
   url="$1"
 
@@ -62,14 +70,16 @@ get_file_http() {
   echo "$CACHE_DIR/$fname"
 }
 
+# get file from immich source
 get_file_immich() {
   url="$1"
 
-  fname=$(basename $(dirname "$url"))
+  fname=$(basename "$(dirname "$url")")
   curl -s -o "$CACHE_DIR/$fname" -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$url"
   echo "$CACHE_DIR/$fname"
 }
 
+# get random file info from http source
 get_random_http() {
   min_dura="$1"
   max_dura="$2"
@@ -87,13 +97,14 @@ get_random_http() {
   echo "$name" "$url" "$fdura" ""
 }
 
+# get random file info from immich source
 get_random_immich() {
   rand_line=$(shuf -n 1 "$TMP_DIR/immich_assets")
 
-  asset=`echo "$rand_line" | awk -F';' '{print $1}'`
-  city=`echo "$rand_line" | awk -F';' '{print $2}'`
-  state=`echo "$rand_line" | awk -F';' '{print $3}'`
-  fdura=`echo "$rand_line" | awk -F';' '{print $5}'`
+  asset=$(echo "$rand_line" | awk -F';' '{print $1}')
+  city=$(echo "$rand_line" | awk -F';' '{print $2}')
+  state=$(echo "$rand_line" | awk -F';' '{print $3}')
+  fdura=$(echo "$rand_line" | awk -F';' '{print $5}')
 
   [ "$city" == "null" ] && city=""
   [[ "$state" == "null" || "$state" == "$city" ]] && state=""
