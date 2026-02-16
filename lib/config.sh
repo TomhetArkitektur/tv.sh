@@ -5,9 +5,9 @@ SET_BR=""
 BR_SET_CMD="sudo ddcutil setvcp 10"
 # get brightness command
 BR_GET_CMD="sudo ddcutil -t --brief getvcp 10 | awk '{print \$4}'"
-# minimum duration of one clip (empty to disable)
+# minimum duration of one clip (0 to disable)
 MIN_DURA=0
-# maximum duration (empty to disable)
+# maximum duration (0 to disable)
 MAX_DURA=20
 # wait interval between clips
 WAIT_INT=7
@@ -21,7 +21,7 @@ MPV_OPTS="--video-zoom=0 --video-unscaled=no --panscan=1.0 --fs --input-vo-keybo
 MPV_OPTS_HTTP=""
 # mpv settings for immich source (example: '--vo=wlshm' for wayland on raspberry pi)
 MPV_OPTS_IMMICH=""
-# Source of clips, you can dinamically switch sources via 'ctl.sh source [SOURCE]'
+# Source of clips, can be dinamically switched via 'ctl.sh source [SOURCE]'
 SOURCE="http"
 
 ### Source settings
