@@ -8,17 +8,17 @@ load_user_config
 
 case "$1" in
   start)
-    if [ "$(check_status)" -eq 0 ]; then
+    if check_status; then
+      echo "already running"
+    else
       set_brightness "$SET_BR"
       "$DIR/play.sh" >/dev/null &
       echo $! > "$PID"
       on_event start
-    else
-      echo "already running"
     fi
     ;;
   stop)
-    if [ "$(check_status)" -eq 1 ]; then
+    if check_status; then
       terminate
       on_event stop
       set_brightness "restore"
@@ -27,12 +27,12 @@ case "$1" in
     fi
     ;;
   status)
-    if [ "$(check_status)" -eq 0 ]; then
-      echo "stopped"
-      exit 1
-    else
+    if check_status; then
       echo "running"
       exit 0
+    else
+      echo "stopped"
+      exit 1
     fi
     ;;
   source)

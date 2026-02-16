@@ -15,14 +15,17 @@ show_osd() {
 play() {
   fname="$1"
 
+  # load new file if mpv is running
   if [ -f "$MPV_PID" ] && [ -f "/proc/$(cat "$MPV_PID")/status" ]; then
     echo '{ "command": ["loadfile", "'"$fname"'", "replace"] }' | socat - "$MPV_SOCK" >/dev/null
+  # run mpv if not running
   else
     rm -f "$MPV_SOCK"
     # shellcheck disable=SC2086
     mpv $MPV_OPTS --input-ipc-server="$MPV_SOCK" "$fname" >/dev/null &
     echo $! > "$MPV_PID"
 
+    # wait for socket creation
     for _ in {1..100}; do
       [ -S "$MPV_SOCK" ] && break
       sleep 0.05

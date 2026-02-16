@@ -39,7 +39,6 @@ prepare_source_immich() {
 get_random() {
   local min_dura="$1"
   local max_dura="$2"
-  local name url fdura osd
 
   if [ "$SOURCE" == "http" ]; then
     read -r name url fdura osd < <(get_random_http "$min_dura" "$max_dura")
@@ -51,7 +50,7 @@ get_random() {
 
 # get file via url
 get_file() {
-  url="$1"
+  local url="$1"
 
   if [ "$SOURCE" == "http" ]; then
     fname=$(get_file_http "$url")
@@ -63,7 +62,7 @@ get_file() {
 
 # get file from http source
 get_file_http() {
-  url="$1"
+  local url="$1"
 
   fname=$(basename "$url")
   curl -s -o "$CACHE_DIR/$fname" "$url"
@@ -72,7 +71,7 @@ get_file_http() {
 
 # get file from immich source
 get_file_immich() {
-  url="$1"
+  local url="$1"
 
   fname=$(basename "$(dirname "$url")")
   curl -s -o "$CACHE_DIR/$fname" -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$url"
@@ -81,8 +80,8 @@ get_file_immich() {
 
 # get random file info from http source
 get_random_http() {
-  min_dura="$1"
-  max_dura="$2"
+  local min_dura="$1"
+  local max_dura="$2"
 
   uri="$TVSH_URI/?random"
   [ "$min_dura" != "0" ] && uri="$uri&min_duration=$min_dura"

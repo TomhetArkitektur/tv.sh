@@ -1,13 +1,15 @@
 # shellcheck shell=bash
 
 get_clip_size() {
-  fname="$1"
+  local fname="$1"
+
   size=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$fname" 2>/dev/null | cut -d. -f1)
   echo "$size"
 }
 
 check_clip() {
-  fname="$1"
+  local fname="$1"
+
   if ! mpv --vo=null --ao=null "$fname" &>/dev/null; then
     echo 0
   else
@@ -16,7 +18,8 @@ check_clip() {
 }
 
 index_clip() {
-  fname="$1"
+  local fname="$1"
+
   clip=$(basename "$fname")
   size=$(get_clip_size "$fname")
 
@@ -24,8 +27,9 @@ index_clip() {
 }
 
 load_user_config() {
-  tvsh_user_conf="$HOME/.config/tvsh/config.sh"
-  mpv_user_conf="$HOME/.config/tvsh/mpv.conf"
+  local tvsh_user_conf="$HOME/.config/tvsh/config.sh"
+  local mpv_user_conf="$HOME/.config/tvsh/mpv.conf"
+
   MPV_CONF="$DIR/conf/mpv.conf"
 
   # shellcheck disable=SC1090
@@ -44,7 +48,7 @@ load_user_config() {
 }
 
 list_scripts () {
-  scripts_dir="$1"
+  local scripts_dir="$1"
 
   list=$(printf ":%s" "$scripts_dir")
   list=${list:1}
@@ -67,7 +71,7 @@ set_osd() {
 }
 
 set_brightness() {
-  level="$1"
+  local level="$1"
 
   if [ "$SET_BR" != "" ]; then
     if [ "$level" == "restore" ]; then
@@ -82,7 +86,7 @@ set_brightness() {
 }
 
 clean_cache() {
-  cutoff="$1"
+  local cutoff="$1"
 
   cd "$CACHE_DIR" || { echo "clean cache failed"; exit 1; }
   # shellcheck disable=SC2012
@@ -119,7 +123,8 @@ reload() {
 }
 
 on_event() {
-  step="$1"
+  local step="$1"
+
   case "$step" in
     start)
       $ON_START_CMD >/dev/null
