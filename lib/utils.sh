@@ -43,16 +43,19 @@ load_user_config() {
   fi
   set_osd
 
-  read -r scripts < <(list_scripts "$DIR/scripts/*.lua")
+  read -r scripts < <(list_scripts "$DIR/scripts/")
   MPV_OPTS="$MPV_OPTS --include=$MPV_CONF --scripts=$scripts"
 }
 
 list_scripts () {
-  local scripts_dir="$1"
-
-  list=$(printf ":%s" "$scripts_dir")
-  list=${list:1}
-  echo "$list"
+  local scripts_dir="${1%/}"
+  shopt -s nullglob
+    
+  local files=("$scripts_dir"/*)
+  local IFS=":"
+  local list="${files[*]}"
+    
+  echo "${list//"$scripts_dir\/"/}"
 }
 
 mkdirs() {
