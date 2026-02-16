@@ -95,10 +95,10 @@ check_status() {
 }
 
 terminate() {
-  [ -S "$MPV_SOCK" ] && echo '{"command": ["quit"]}' | socat - "$MPV_SOCK" >/dev/null
+  [ -S "$MPV_SOCK" ] && echo '{"command": ["quit"]}' | socat - "$MPV_SOCK" >/dev/null 2>&1
   if [ -f "$PID" ]; then
     pid=$(cat "$PID")
-    kill "$pid"
+    kill "$pid" >/dev/null 2>&1
   fi
 }
 
