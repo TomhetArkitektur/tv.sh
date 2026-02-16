@@ -97,9 +97,9 @@ clean_cache() {
 
 check_status() {
   if [ -f "$PID" ] && [ -f "/proc/$(cat "$PID")/status" ]; then
-    echo 1
+    return 0 # running
   else
-    echo 0
+    return 1 # not running
   fi
 }
 
