@@ -7,6 +7,8 @@ BR_SET_CMD="sudo ddcutil setvcp 10"
 BR_GET_CMD="sudo ddcutil -t --brief getvcp 10 | awk '{print \$4}'"
 # minimum duration of one clip (empty to disable)
 MIN_DURA=""
+# maximum duration (empty to disable)
+MAX_DURA=20
 # wait interval between clips
 WAIT_INT=7
 # files to keep in cache

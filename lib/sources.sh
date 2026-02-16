@@ -34,6 +34,8 @@ get_random_immich() {
   asset=`echo "$rand_line" | awk -F';' '{print $1}'`
   city=`echo "$rand_line" | awk -F';' '{print $2}'`
   state=`echo "$rand_line" | awk -F';' '{print $3}'`
+  fdura=`echo "$rand_line" | awk -F';' '{print $5}'`
+
   if [ "$city" == "null" ]; then
     city=""
   fi
@@ -42,5 +44,5 @@ get_random_immich() {
   fi
   location="$city $state"
 
-  echo "$asset" "$IMMICH_URL/assets/$asset/original" 0 "$location"
+  echo "$asset" "$IMMICH_URL/assets/$asset/original" "$fdura" "$location"
 }

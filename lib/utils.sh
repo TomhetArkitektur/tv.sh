@@ -35,6 +35,17 @@ load_user_config() {
     MPV_OPTS="$MPV_OPTS $MPV_OPTS_IMMICH"
   fi
   set_osd
+
+  read -r scripts < <(list_scripts "$DIR/scripts/*.lua")
+  MPV_OPTS="$MPV_OPTS --include=$MPV_CONF --scripts=$scripts"
+}
+
+list_scripts () {
+  scripts_dir="$1"
+
+  list=$(printf ":%s" "$scripts_dir")
+  list=${list:1}
+  echo $list
 }
 
 mkdirs() {
@@ -63,7 +74,11 @@ prepare() {
     fi
 
     while read -r album; do
-      curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r '.assets[] | select(.type != "VIDEO") | "\(.id);\(.exifInfo.city);\(.exifInfo.state);\(.exifInfo.country)"' >> "$TMP_DIR/immich_assets"
+      curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r --arg max "$MAX_DURA" '.assets[] |
+        (.duration | split(":") | (.[0]|tonumber)*3600 + (.[1]|tonumber)*60 + (.[2]|tonumber) | floor) as $dura |
+        select(
+          .type == "IMAGE" or (.type == "VIDEO" and $dura <= ($max|tonumber))
+        ) | "\(.id);\(.exifInfo.city);\(.exifInfo.state);\(.exifInfo.country);\($dura)"' >> "$TMP_DIR/immich_assets"
     done <<< "$albums"
   fi
 }
