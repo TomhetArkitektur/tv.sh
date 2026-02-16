@@ -6,9 +6,11 @@ source "$DIR/lib/utils.sh"
 source "$DIR/lib/sources.sh"
 
 show_osd() {
-  if [ "$SHOW_OSD" == "true" ]; then
-    text="$1"
-    echo '{"command": ["show-text", "'"$text"'", "'"$OSD_TIME"'"]}' | socat - "$MPV_SOCK" >/dev/null
+  local text="$1"
+  #local dura="$2"
+
+  if [ "$SHOW_OSD" == "true" ] && [ "$text" != "" ]; then
+    echo '{"command": ["script-message", "show-fade-text", "'"$text"'", "'"$OSD_TIME"'"]}' | socat - "$MPV_SOCK" >/dev/null
   fi
 }
 
@@ -51,7 +53,7 @@ while true; do
   on_event play
   echo "playing $url ($fname) ($fdura sec)"
   play "$fname"
-  show_osd "$osd"
+  show_osd "$osd" "$fdura"
 
   if [ "$fdura" -gt "$WAIT_INT" ]; then
     sleep "$fdura"
