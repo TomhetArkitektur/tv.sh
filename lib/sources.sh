@@ -31,6 +31,29 @@ prepare_source_immich() {
   done <<< "$albums"
 }
 
+get_random() {
+  min_dura="$1"
+  max_dura="$2"
+
+  if [ "$SOURCE" == "http" ]; then
+    read -r name url fdura osd < <(get_random_http "$min_dura" "$max_dura")
+  elif [ "$SOURCE" == "immich" ]; then
+    read -r name url fdura osd < <(get_random_immich)
+  fi
+  echo "$name" "$url" "$fdura" "$osd"
+}
+
+get_file() {
+  url="$1"
+
+  if [ "$SOURCE" == "http" ]; then
+    fname=$(get_file_http "$url")
+  elif [ "$SOURCE" == "immich" ]; then
+    fname=$(get_file_immich "$url")
+  fi
+  echo "$fname"
+}
+
 get_file_http() {
   url="$1"
 
@@ -48,33 +71,32 @@ get_file_immich() {
 }
 
 get_random_http() {
-  dura="$1"
+  min_dura="$1"
+  max_dura="$2"
 
   uri="$TVSH_URI/?random"
-  if [ "$dura" != "" ]; then
-    uri="$uri&duration=$dura"
-  fi
+  [ "$min_dura" != "0" ] && uri="$uri&min_duration=$min_dura"
+  [ "$max_dura" != "0" ] && uri="$uri&max_duration=$max_dura"
+  
   json=$(curl -s "$uri" | head -1)
 
   url=$(echo "$json" | jq -r '.url')
   fdura=$(echo "$json" | jq -r '.duration')
   name=$(basename "$url")
+
   echo "$name" "$url" "$fdura" ""
 }
 
 get_random_immich() {
   rand_line=$(shuf -n 1 "$TMP_DIR/immich_assets")
+
   asset=`echo "$rand_line" | awk -F';' '{print $1}'`
   city=`echo "$rand_line" | awk -F';' '{print $2}'`
   state=`echo "$rand_line" | awk -F';' '{print $3}'`
   fdura=`echo "$rand_line" | awk -F';' '{print $5}'`
 
-  if [ "$city" == "null" ]; then
-    city=""
-  fi
-  if [[ "$state" == "null" || "$state" == "$city" ]]; then
-    state=""
-  fi
+  [ "$city" == "null" ] && city=""
+  [[ "$state" == "null" || "$state" == "$city" ]] && state=""
   location="$city $state"
 
   echo "$asset" "$IMMICH_URL/assets/$asset/original" "$fdura" "$location"

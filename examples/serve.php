@@ -1,38 +1,42 @@
 <?php
 $root_dir = "/var/www/vhosts/domain.com/tvsh/clips";
-$index = "$root_dir/index";
+$index_file = "$root_dir/index";
 
-$random = $_GET["random"];
-$id = $_GET["id"];
-$duration = $_GET["duration"];
-if (!isset($duration)) {
-  $duration = 0;
-};
+$min_duration = isset($_GET["min_duration"]) ? (int)$_GET["min_duration"] : 0;
+$max_duration = isset($_GET["max_duration"]) ? (int)$_GET["max_duration"] : 0;
+$id = isset($_GET["id"]) ? (int)$_GET["id"] : 0;
+$is_random = isset($_GET["random"]);
 
-function get_random_file($dura = 0) {
-    global $root_dir, $index;
+function get_random_file($index, $min_dura, $max_dura) {
+  if (!file_exists($index)) return null;
 
-    $lines = file($index, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+  $handle = fopen($index, "r");
+  $candidates = [];
 
-    if ($dura > 0) {
-        $filtered = array_filter($lines, function($line) use ($dura) {
-            $parts = explode(';', $line);
-            return count($parts) === 2 && intval($parts[1]) >= $dura;
-        });
-        $lines = array_values($filtered);
+  if ($handle) {
+    while (($line = fgets($handle)) !== false) {
+      $line = trim($line);
+      if (empty($line)) continue;
+
+      $parts = explode(';', $line);
+      if (count($parts) < 2) continue;
+
+      $dura = (int)$parts[1];
+      if ($min_dura > 0 && $dura < $min_dura) continue;
+      if ($max_dura > 0 && $dura > $max_dura) continue;
+
+      $candidates[] = [$parts[0], $dura];
     }
+    fclose($handle);
+  }
 
-    if (empty($lines)) {
-        return null;
-    }
+  if (empty($candidates)) return null;
 
-    $random_line = $lines[array_rand($lines)];
-    $parts = explode(';', $random_line);
-    return [ $parts[0], $parts[1] ];
+  return $candidates[array_rand($candidates)];
 }
 
-if (isset($random)) {
-  [$fname, $dura] = get_random_file($duration);
+if ($is_random) {
+  [$fname, $dura] = get_random_file($index_file, $min_duration, $max_duration);
   $data = array("url" => "http://domain.com/tvsh/clips/$fname", "duration" => $dura);
 
   header('Content-Type: application/json');
