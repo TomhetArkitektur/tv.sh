@@ -7,31 +7,30 @@ prepare_source() {
   fi
 }
 
-# download albums from immich
 prepare_source_immich() {
   rm -f "$TMP_DIR/immich_assets"
 
   uri="$IMMICH_URL/albums"
-  [ "$IMMICH_ALBUMS_TYPE" == "shared" ] && uri="$uri?shared=true" # shared albums
+  [ "$IMMICH_ALBUMS_TYPE" = "shared" ] && uri="$uri?isShared=true"
 
-  if [ "$IMMICH_ALBUMS_TYPE" == "manual" ]; then
+  if [ "$IMMICH_ALBUMS_TYPE" = "manual" ]; then
     albums=$(printf "%s\n" "${IMMICH_ALBUMS[@]}")
   else
-    albums=$(curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$uri" | jq '.[]["id"]' | tr -d '"')
+    albums=$(curl -sS -H "x-api-key: $IMMICH_API_KEY" "$uri" | jq -r '.[].id')
   fi
 
-  # process albums
   while read -r album; do
-    # shellcheck disable=SC2153
-    curl -sS -H "Accept: application/json" -H "x-api-key: $IMMICH_API_KEY" -L "$IMMICH_URL/albums/$album" | jq -r --arg max "$MAX_DURA" --arg min "$MIN_DURA" '.assets[] |
-      (.duration | split(":") | (.[0]|tonumber)*3600 + (.[1]|tonumber)*60 + (.[2]|tonumber) | floor) as $dura |
-      select(
-        .type == "IMAGE" or
-        (.type == "VIDEO" and
-          ($max == "0" or $dura <= ($max|tonumber)) and
-          ($min == "0" or $dura >= ($min|tonumber))
-        )
-      ) | "\(.id);\(.exifInfo.city);\(.exifInfo.state);\(.exifInfo.country);\($dura)"' >> "$TMP_DIR/immich_assets"
+    [ -z "$album" ] && continue
+
+    curl -sS -X POST "$IMMICH_URL/search/metadata" \
+      -H "Content-Type: application/json" -H "x-api-key: $IMMICH_API_KEY" \
+      -d "{\"albumIds\":[\"$album\"],\"withExif\":true}" |
+    jq -r --argjson min "${MIN_DURA:-0}" --argjson max "${MAX_DURA:-0}" '
+      (.assets.items // [])[] |
+      (if .type == "VIDEO" then ((.duration // 0) / 1000 | floor) else 0 end) as $dura |
+      select(.type == "IMAGE" or (.type == "VIDEO" and ($min == 0 or $dura >= $min) and ($max == 0 or $dura <= $max))) |
+      [.id, (.exifInfo.city // ""), (.exifInfo.state // ""), (.exifInfo.country // ""), $dura] | join(";")
+    ' >> "$TMP_DIR/immich_assets"
   done <<< "$albums"
 }
 
